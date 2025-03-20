@@ -6,9 +6,6 @@
 #include <cstdint>
 #include <future>
 
-nlohmann::json config = HostDiscordBot::config["DiscordBot"];
-
-
 uint64_t ConvertGuildID(std::string guildIDStr)
 {
 	uint64_t guildID = 0;
@@ -95,6 +92,8 @@ void SetPresence(dpp::cluster& discordBot)
 {
 	if (dpp::run_once<struct register_bot_commands>())
 	{
+		nlohmann::json config = HostDiscordBot::config["DiscordBot"];
+
 		dpp::presence_status status = dpp::ps_offline;
 		status = GetPresenceStatus(config["Presence"]["Status"]);
 
@@ -106,7 +105,7 @@ void SetPresence(dpp::cluster& discordBot)
 
 		discordBot.set_presence(presence);
 
-		discordBot.start_timer([&discordBot, presence](const dpp::timer& timer)
+		discordBot.start_timer([&discordBot, presence, config](const dpp::timer& timer)
 			{
 				discordBot.set_presence(presence);
 			},
@@ -160,7 +159,7 @@ void RegisterCommands(dpp::cluster& discordBot, dpp::snowflake guild_id)
 	{
 		std::vector<dpp::slashcommand> dpp_commands;
 
-		nlohmann::json commands = config["DiscordBot"]["Commands"].get<nlohmann::json>();
+		nlohmann::json commands = HostDiscordBot::config["DiscordBot"]["Commands"].get<nlohmann::json>();
 
 		if (commands.is_null())
 		{
@@ -219,7 +218,7 @@ void OnSlashCommand(dpp::cluster& discordBot)
 {
 	discordBot.on_slashcommand([&](const dpp::slashcommand_t& event)
 		{
-			nlohmann::json commands = config["Commands"];
+			nlohmann::json commands = HostDiscordBot::config["DiscordBot"]["Commands"];
 
 			for (nlohmann::json cmd : commands)
 			{

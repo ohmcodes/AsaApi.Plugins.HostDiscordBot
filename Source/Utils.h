@@ -1,150 +1,12 @@
 
 #include <fstream>
 
-
-static bool startsWith(const std::string& str, const std::string& prefix)
-{
-	return str.size() >= prefix.size() && str.compare(0, prefix.size(), prefix) == 0;
-}
-
-void FetchMessageFromDiscordCallback(bool success, std::string results)
-{
-	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
-
-	if (success)
-	{
-		if(results.empty()) return;
-
-		try
-		{
-			nlohmann::json resObj = nlohmann::json::parse(results)[0];
-
-			if (resObj.is_null())
-			{
-				Log::GetLog()->warn("resObj is null");
-				return;
-			}
-
-			auto globalName = resObj["author"]["global_name"];
-
-			// if not sent by bot
-			if (resObj.contains("bot") && globalName.is_null())
-			{
-				Log::GetLog()->warn("the sender is bot");
-				return;
-			}
-
-			std::string msg = resObj["content"].get<std::string>();
-			
-			if (!startsWith(msg, "!"))
-			{
-				Log::GetLog()->warn("message not startswith !");
-				return;
-			}
-
-			if (PluginTemplate::lastMessageID == resObj["id"].get<std::string>()) return;
-			
-			std::string sender = fmt::format("Discord: {}", globalName.get<std::string>());
-
-			AsaApi::GetApiUtils().SendChatMessageToAll(FString(sender), msg.c_str());
-
-			PluginTemplate::lastMessageID = resObj["id"].get<std::string>();
-		}
-		catch (std::exception& error)
-		{
-			Log::GetLog()->error("Error parsing JSON results. Error: {}",error.what());
-		}
-	}
-	else
-	{
-		Log::GetLog()->warn("Failed to fetch messages. success: {}", success);
-	}
-}
-
-void FetchMessageFromDiscord()
-{
-	//Log::GetLog()->warn("Function: {}", __FUNCTION__);
-
-	std::string botToken = PluginTemplate::config["DiscordBot"].value("BotToken","");
-
-	std::string channelID = PluginTemplate::config["DiscordBot"].value("ChannelID", "");
-
-	std::string apiURL = FString::Format("https://discord.com/api/v10/channels/{}/messages?limit=1", channelID).ToString();
-
-	std::vector<std::string> headers = {
-		"Content-Type: application/json",
-		"User-Agent: PluginTemplate/1.0",
-		"Connection: keep-alive",
-		"Accept: */*",
-		"Content-Length: 0",
-		"Authorization: Bot " + botToken
-	};
-
-	try
-	{
-		bool req = PluginTemplate::req.CreateGetRequest(apiURL, FetchMessageFromDiscordCallback, headers);
-
-		if (!req)
-			Log::GetLog()->error("Failed to perform Get request. req = {}", req);
-	}
-	catch (const std::exception& error)
-	{
-		Log::GetLog()->error("Failed to perform Get request. Error: {}", error.what());
-	}
-}
-
-void SendMessageToDiscordCallback(bool success, std::string results, std::unordered_map<std::string, std::string> responseHeaders)
-{
-	if (!success)
-	{
-		Log::GetLog()->error("Failed to send Post request. {} {} {}", __FUNCTION__, success, results);
-	}
-	else
-	{
-		Log::GetLog()->info("Success. {} {} {}", __FUNCTION__, success, results);
-	}
-}
-
-void SendMessageToDiscord(std::string msg)
-{
-
-	Log::GetLog()->warn("Function: {}", __FUNCTION__);
-
-	
-	std::string webhook = PluginTemplate::config["DiscordBot"].value("Webhook", "");
-	std::string botImgUrl = PluginTemplate::config["DiscordBot"].value("BotImageURL", "");
-
-	if (webhook == "" || webhook.empty()) return;
-
-	FString msgFormat = L"{{\"content\":\"{}\",\"username\":\"{}\",\"avatar_url\":\"{}\"}}";
-
-	FString msgOutput = FString::Format(*msgFormat, msg, "ArkBot", botImgUrl);
-
-	std::vector<std::string> headers = {
-		"Content-Type: application/json",
-		"User-Agent: PluginTemplate/1.0",
-		"Connection: keep-alive",
-		"Accept: */*"
-	};
-
-	try
-	{
-		bool req = PluginTemplate::req.CreatePostRequest(webhook, SendMessageToDiscordCallback, msgOutput.ToStringUTF8(), "application/json", headers);
-
-		if(!req)
-			Log::GetLog()->error("Failed to send Post request. req = {}", req);
-	}
-	catch (const std::exception& error)
-	{
-		Log::GetLog()->error("Failed to send Post request. Error: {}", error.what());
-	}
-}
-
+#if 0
 bool Points(FString eos_id, int cost, bool check_points = false)
 {
 	if (cost == -1)
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("Cost is -1");
 		}
@@ -153,7 +15,7 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 
 	if (cost == 0)
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("Cost is 0");
 		}
@@ -161,11 +23,11 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 		return true;
 	}
 
-	nlohmann::json config = PluginTemplate::config["PointsDBSettings"];
+	nlohmann::json config = HostDiscordBot::config["PointsDBSettings"];
 
 	if (config.value("Enabled", false) == false)
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("Points system is disabled");
 		}
@@ -180,22 +42,22 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 
 	if (tablename.empty() || unique_id.empty() || points_field.empty())
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("DB Fields are empty");
 		}
 		return false;
 	}
 
-	std::string escaped_eos_id = PluginTemplate::pointsDB->escapeString(eos_id.ToString());
+	std::string escaped_eos_id = HostDiscordBot::pointsDB->escapeString(eos_id.ToString());
 
 	std::string query = fmt::format("SELECT * FROM {} WHERE {}='{}'", tablename, unique_id, escaped_eos_id);
 
 	std::vector<std::map<std::string, std::string>> results;
 
-	if (!PluginTemplate::pointsDB->read(query, results))
+	if (!HostDiscordBot::pointsDB->read(query, results))
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("Error reading points db");
 		}
@@ -205,7 +67,7 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 
 	if (results.size() <= 0)
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("No record found");
 		}
@@ -216,7 +78,7 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 
 	if (check_points)
 	{
-		if (PluginTemplate::config["Debug"].value("Points", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 		{
 			Log::GetLog()->warn("Player got {} points", points);
 		}
@@ -241,9 +103,9 @@ bool Points(FString eos_id, int cost, bool check_points = false)
 
 		std::string condition = fmt::format("{}='{}'", unique_id, escaped_eos_id);
 
-		if (PluginTemplate::pointsDB->update(tablename, data, condition))
+		if (HostDiscordBot::pointsDB->update(tablename, data, condition))
 		{
-			if (PluginTemplate::config["Debug"].value("Points", false) == true)
+			if (HostDiscordBot::config["Debug"].value("Points", false) == true)
 			{
 				Log::GetLog()->info("{} Points DB updated", amount);
 			}
@@ -260,7 +122,7 @@ nlohmann::json GetCommandString(const std::string permission, const std::string 
 	if (permission.empty()) return {};
 	if (command.empty()) return {};
 
-	nlohmann::json config_obj = PluginTemplate::config["PermissionGroups"];
+	nlohmann::json config_obj = HostDiscordBot::config["PermissionGroups"];
 	nlohmann::json perm_obj = config_obj[permission];
 	nlohmann::json command_obj = perm_obj["Commands"];
 	nlohmann::json setting_obj = command_obj[command];
@@ -272,18 +134,18 @@ TArray<FString> GetPlayerPermissions(FString eos_id)
 {
 	TArray<FString> PlayerPerms = { "Default" };
 
-	std::string escaped_eos_id = PluginTemplate::permissionsDB->escapeString(eos_id.ToString());
+	std::string escaped_eos_id = HostDiscordBot::permissionsDB->escapeString(eos_id.ToString());
 
-	std::string tablename = PluginTemplate::config["PermissionsDBSettings"].value("TableName", "Players");
+	std::string tablename = HostDiscordBot::config["PermissionsDBSettings"].value("TableName", "Players");
 
-	std::string condition = PluginTemplate::config["PermissionsDBSettings"].value("UniqueIDField", "EOS_Id");
+	std::string condition = HostDiscordBot::config["PermissionsDBSettings"].value("UniqueIDField", "EOS_Id");
 
 	std::string query = fmt::format("SELECT * FROM {} WHERE {}='{}';", tablename, condition, escaped_eos_id);
 
 	std::vector<std::map<std::string, std::string>> results;
-	if (!PluginTemplate::permissionsDB->read(query, results))
+	if (!HostDiscordBot::permissionsDB->read(query, results))
 	{
-		if (PluginTemplate::config["Debug"].value("Permissions", false) == true)
+		if (HostDiscordBot::config["Debug"].value("Permissions", false) == true)
 		{
 			Log::GetLog()->warn("Error reading permissions DB");
 		}
@@ -293,11 +155,11 @@ TArray<FString> GetPlayerPermissions(FString eos_id)
 
 	if (results.size() <= 0) return PlayerPerms;
 
-	std::string permsfield = PluginTemplate::config["PermissionsDBSettings"].value("PermissionGroupField","PermissionGroups");
+	std::string permsfield = HostDiscordBot::config["PermissionsDBSettings"].value("PermissionGroupField","PermissionGroups");
 
 	FString playerperms = FString(results[0].at(permsfield));
 
-	if (PluginTemplate::config["Debug"].value("Permissions", false) == true)
+	if (HostDiscordBot::config["Debug"].value("Permissions", false) == true)
 	{
 		Log::GetLog()->info("current player perms {}", playerperms.ToString());
 	}
@@ -311,7 +173,7 @@ FString GetPriorPermByEOSID(FString eos_id)
 {
 	TArray<FString> player_groups = GetPlayerPermissions(eos_id);
 
-	const nlohmann::json permGroups = PluginTemplate::config["PermissionGroups"];
+	const nlohmann::json permGroups = HostDiscordBot::config["PermissionGroups"];
 
 	std::string defaultGroup = "Default";
 	int minPriority = INT_MAX;
@@ -340,7 +202,7 @@ FString GetPriorPermByEOSID(FString eos_id)
 		result = {};
 	}
 
-	if (PluginTemplate::config["Debug"].value("Permissions", false) == true)
+	if (HostDiscordBot::config["Debug"].value("Permissions", false) == true)
 	{
 		Log::GetLog()->info("Selected Permission {}", selectedPerm.ToString());
 	}
@@ -356,17 +218,17 @@ bool AddPlayer(FString eosID, int playerID, FString playerName)
 		{"PlayerName", playerName.ToString()}
 	};
 
-	return PluginTemplate::pluginTemplateDB->create(PluginTemplate::config["PluginDBSettings"]["TableName"].get<std::string>(), data);
+	return HostDiscordBot::HostDiscordBotDB->create(HostDiscordBot::config["PluginDBSettings"]["TableName"].get<std::string>(), data);
 }
 
 bool ReadPlayer(FString eosID)
 {
-	std::string escaped_id = PluginTemplate::pluginTemplateDB->escapeString(eosID.ToString());
+	std::string escaped_id = HostDiscordBot::HostDiscordBotDB->escapeString(eosID.ToString());
 
-	std::string query = fmt::format("SELECT * FROM {} WHERE EosId='{}'", PluginTemplate::config["PluginDBSettings"]["TableName"].get<std::string>(), escaped_id);
+	std::string query = fmt::format("SELECT * FROM {} WHERE EosId='{}'", HostDiscordBot::config["PluginDBSettings"]["TableName"].get<std::string>(), escaped_id);
 
 	std::vector<std::map<std::string, std::string>> results;
-	PluginTemplate::pluginTemplateDB->read(query, results);
+	HostDiscordBot::HostDiscordBotDB->read(query, results);
 
 	return results.size() <= 0 ? false : true;
 }
@@ -375,7 +237,7 @@ bool UpdatePlayer(FString eosID, FString playerName)
 {
 	std::string unique_id = "EosId";
 
-	std::string escaped_id = PluginTemplate::pluginTemplateDB->escapeString(eosID.ToString());
+	std::string escaped_id = HostDiscordBot::HostDiscordBotDB->escapeString(eosID.ToString());
 
 	std::vector<std::pair<std::string, std::string>> data = {
 		{"PlayerName", playerName.ToString() + "123"}
@@ -383,17 +245,19 @@ bool UpdatePlayer(FString eosID, FString playerName)
 
 	std::string condition = fmt::format("{}='{}'", unique_id, escaped_id);
 
-	return PluginTemplate::pluginTemplateDB->update(PluginTemplate::config["PluginDBSettings"]["TableName"].get<std::string>(), data, condition);
+	return HostDiscordBot::HostDiscordBotDB->update(HostDiscordBot::config["PluginDBSettings"]["TableName"].get<std::string>(), data, condition);
 }
 
 bool DeletePlayer(FString eosID)
 {
-	std::string escaped_id = PluginTemplate::pluginTemplateDB->escapeString(eosID.ToString());
+	std::string escaped_id = HostDiscordBot::HostDiscordBotDB->escapeString(eosID.ToString());
 
 	std::string condition = fmt::format("EosId='{}'", escaped_id);
 
-	return PluginTemplate::pluginTemplateDB->deleteRow(PluginTemplate::config["PluginDBSettings"]["TableName"].get<std::string>(), condition);
+	return HostDiscordBot::HostDiscordBotDB->deleteRow(HostDiscordBot::config["PluginDBSettings"]["TableName"].get<std::string>(), condition);
 }
+
+#endif
 
 void ReadConfig()
 {
@@ -405,13 +269,13 @@ void ReadConfig()
 		{
 			throw std::runtime_error("Can't open config file.");
 		}
-		file >> PluginTemplate::config;
+		file >> HostDiscordBot::config;
 
 		Log::GetLog()->info("{} config file loaded.", PROJECT_NAME);
 
-		PluginTemplate::isDebug = PluginTemplate::config["General"]["Debug"].get<bool>();
+		HostDiscordBot::isDebug = HostDiscordBot::config["General"]["Debug"].get<bool>();
 
-		Log::GetLog()->warn("Debug {}", PluginTemplate::isDebug);
+		Log::GetLog()->warn("Debug {}", HostDiscordBot::isDebug);
 
 	}
 	catch(const std::exception& error)
@@ -421,13 +285,14 @@ void ReadConfig()
 	}
 }
 
+#if 0
 void LoadDatabase()
 {
 	Log::GetLog()->warn("LoadDatabase");
-	PluginTemplate::pluginTemplateDB = DatabaseFactory::createConnector(PluginTemplate::config["PluginDBSettings"]);
+	HostDiscordBot::HostDiscordBotDB = DatabaseFactory::createConnector(HostDiscordBot::config["PluginDBSettings"]);
 
 	nlohmann::ordered_json tableDefinition = {};
-	if (PluginTemplate::config["PluginDBSettings"].value("UseMySQL", true) == true)
+	if (HostDiscordBot::config["PluginDBSettings"].value("UseMySQL", true) == true)
 	{
 		tableDefinition = {
 			{"Id", "INT NOT NULL AUTO_INCREMENT"},
@@ -450,19 +315,20 @@ void LoadDatabase()
 		};
 	}
 
-	PluginTemplate::pluginTemplateDB->createTableIfNotExist(PluginTemplate::config["PluginDBSettings"].value("TableName", ""), tableDefinition);
+	HostDiscordBot::HostDiscordBotDB->createTableIfNotExist(HostDiscordBot::config["PluginDBSettings"].value("TableName", ""), tableDefinition);
 
 
 	// PermissionsDB
-	if (PluginTemplate::config["PermissionsDBSettings"].value("Enabled", true) == true)
+	if (HostDiscordBot::config["PermissionsDBSettings"].value("Enabled", true) == true)
 	{
-		PluginTemplate::permissionsDB = DatabaseFactory::createConnector(PluginTemplate::config["PermissionsDBSettings"]);
+		HostDiscordBot::permissionsDB = DatabaseFactory::createConnector(HostDiscordBot::config["PermissionsDBSettings"]);
 	}
 
 	// PointsDB (ArkShop)
-	if (PluginTemplate::config["PointsDBSettings"].value("Enabled", true) == true)
+	if (HostDiscordBot::config["PointsDBSettings"].value("Enabled", true) == true)
 	{
-		PluginTemplate::pointsDB = DatabaseFactory::createConnector(PluginTemplate::config["PointsDBSettings"]);
+		HostDiscordBot::pointsDB = DatabaseFactory::createConnector(HostDiscordBot::config["PointsDBSettings"]);
 	}
 	
 }
+#endif

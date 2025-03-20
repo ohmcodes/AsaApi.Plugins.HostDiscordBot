@@ -1,10 +1,10 @@
 #include "API/ARK/Ark.h"
 
-#include "PluginTemplate.h"
+#include "HostDiscordBot.h"
 
 #include "Utils.h"
 
-#include "RepairItems.h"
+#include "DiscordBot.h"
 
 #include "Hooks.h"
 
@@ -16,19 +16,20 @@
 
 
 #pragma comment(lib, "AsaApi.lib")
-
+#pragma comment(lib, "dpp.lib")
 
 
 void OnServerReady()
 {
-	Log::GetLog()->info("PluginTemplate Initialized");
+	Log::GetLog()->info("HostDiscordBot Initialized");
 
 	ReadConfig();
-	LoadDatabase();
-	AddOrRemoveCommands();
+	//LoadDatabase();
+	//AddOrRemoveCommands();
 	AddReloadCommands();
-	SetTimers();
-	SetHooks();
+	//SetTimers();
+	//SetHooks();
+	InitDiscordBot();
 }
 
 DECLARE_HOOK(AShooterGameMode_BeginPlay, void, AShooterGameMode*);
@@ -53,8 +54,9 @@ extern "C" __declspec(dllexport) void Plugin_Unload()
 {
 	AsaApi::GetHooks().DisableHook("AShooterGameMode.BeginPlay()", Hook_AShooterGameMode_BeginPlay);
 
-	AddOrRemoveCommands(false);
+	//AddOrRemoveCommands(false);
 	AddReloadCommands(false);
-	SetTimers(false);
-	SetHooks(false);
+	//SetTimers(false);
+	//SetHooks(false);
+	InitDiscordBot(false);
 }

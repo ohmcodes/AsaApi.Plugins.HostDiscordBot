@@ -1,6 +1,6 @@
 {
-  "FullName": "PluginTemplate",
-  "Description": "A Super simple Plugin that actually works",
+  "FullName": "HostDiscordBot",
+  "Description": "Websocket to host discord bot",
   "Version": 1.0,
   "MinApiVersion": 1.18
 }

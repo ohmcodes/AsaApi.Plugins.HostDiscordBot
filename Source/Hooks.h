@@ -1,6 +1,6 @@
 
 
-
+#if 0
 DECLARE_HOOK(AShooterCharacter_Die, bool, AShooterCharacter*, float, FDamageEvent*, AController*, AActor*);
 
 bool Hook_AShooterCharacter_Die(AShooterCharacter* shooter_character, float KillingDamage, FDamageEvent* DamageEvent, AController* Killer, AActor* DamageCauser)
@@ -11,7 +11,9 @@ bool Hook_AShooterCharacter_Die(AShooterCharacter* shooter_character, float Kill
 
 	return AShooterCharacter_Die_original(shooter_character, KillingDamage, DamageEvent, Killer, DamageCauser);
 }
+#endif
 
+#if 0
 void SetHooks(bool addHooks = true)
 {
 	if (addHooks)
@@ -23,3 +25,4 @@ void SetHooks(bool addHooks = true)
 		AsaApi::GetHooks().DisableHook("AShooterCharacter.Die(float,FDamageEvent&,AController*,AActor*)", &Hook_AShooterCharacter_Die);
 	}
 }
+#endif

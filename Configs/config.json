@@ -4,25 +4,50 @@
     "IgnoreInvRepairRequirements": true
   },
   "Debug": {
-    "PluginTemplate": true,
+    "HostDiscordBot": true,
     "Permissions": true,
     "Points": true
   },
-  "Commands": {
-    "RepairItemCMD": "/repairitems",
-    "DeletePlayerCMD": "/deleteplayer"
-  },
+  "Commands": {},
   "Messages": {
-    "RepairItemsMSG": "All items has been repaired. {}",
-    "RepairItemsPermErrorMSG": "You don't have permission to use this command.",
     "PointsErrorMSG": "Not enough points."
   },
   "DiscordBot": {
     "GuildID": "",
-    "ChannelID": "",
     "BotToken": "",
-    "Webhook": "",
-    "BotImageURL": ""
+    "Presence": {
+      "ActivityName": "ASA",
+      "ActivityType": "at_game",
+      "Status": "ps_online",
+      "Interval": 120
+    },
+    "Commands": {
+      "Ping": {
+        "Name": "ping",
+        "Desc": "Responds with Pong!",
+        "Options": {},
+        "Response": {
+          "Ephemeral": true,
+          "Message": "Pong!"
+        }
+      },
+      "Animals": {
+        "Name": "animal",
+        "Desc": "Choose your favorite animals",
+        "Options": {
+          "animals": {
+            "Name": "animals",
+            "Desc": "Kind of animal",
+            "Required": true,
+            "Choices": {
+              "Dog": "animal_dog",
+              "Cat": "animal_cat",
+              "Penguin": "animal_penguin"
+            }
+          }
+        }
+      }
+    }
   },
   "PluginDBSettings": {
     "UseMySQL": false,
@@ -30,7 +55,7 @@
     "User": "",
     "Password": "",
     "Database": "",
-    "TableName": "PluginTemplate",
+    "TableName": "HostDiscordBot",
     "Port": 3306,
     "MysqlSSLMode": -1,
     "MysqlTLSVersion": "",
@@ -72,13 +97,7 @@
       "Priority": 99
     },
     "Admins": {
-      "Priority": 1,
-      "Commands": {
-        "RepairItemCMD": {
-          "Enabled": false,
-          "Cost": 0
-        }
-      }
+      "Priority": 1
     }
   }
 }

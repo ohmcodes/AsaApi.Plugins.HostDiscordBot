@@ -42,7 +42,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Source\PluginTemplate.cpp">
+    <ClCompile Include="Source\HostDiscordBot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Database\MySQLConnector.cpp">
@@ -56,7 +56,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Source\Public\PluginTemplate.h">
+    <ClInclude Include="Source\Public\HostDiscordBot.h">
       <Filter>Header Files\Public</Filter>
     </ClInclude>
     <ClInclude Include="Source\Reload.h">
@@ -66,9 +66,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Commands.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\RepairItems.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Hooks.h">
@@ -91,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="Includes\sqlite3\sqlite3.h">
       <Filter>Header Files\Public\Database</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\DiscordBot.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

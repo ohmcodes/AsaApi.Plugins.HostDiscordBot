@@ -299,7 +299,7 @@ void InitDiscordBot(bool isLoad = true)
 
 		if (!discordBot)
 		{
-			std::string BotToken = config["BotToken"].get<std::string>();
+			std::string BotToken = HostDiscordBot::config["DiscordBot"].value("BotToken","");
 
 			if (BotToken.empty() || BotToken == "")
 			{

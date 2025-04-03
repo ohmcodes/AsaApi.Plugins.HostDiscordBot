@@ -262,9 +262,9 @@ bool DeletePlayer(FString eosID)
 
 bool CheckToken(std::string token)
 {
-	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(token);
+	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(std::string(token));
 
-	std::string query = fmt::format("SELECT * FROM {} WHERE EosId='{}'", "DiscordLinker", escaped_token);
+	std::string query = fmt::format("SELECT * FROM {} WHERE Token='{}'", "DiscordLinker", escaped_token);
 
 	std::vector<std::map<std::string, std::string>> results;
 	HostDiscordBot::HostDiscordBotDB->read(query, results);

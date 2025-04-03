@@ -259,11 +259,9 @@ void OnSlashCommand(dpp::cluster& discordBot)
 				std::string user_id_str = std::to_string(event.command.get_issuing_user().id);
 
 				std::string token = std::get<std::string>(event.get_parameter("token"));
-				event.reply(dpp::message(std::string(token)).set_flags(dpp::m_ephemeral));
 
-
-				/*bool error = false;
-				if (CheckToken(FString(token)))
+				bool error = false;
+				if (CheckToken(token))
 				{
 					if (UpdatePlayer(token, user_id_str))
 					{
@@ -282,7 +280,7 @@ void OnSlashCommand(dpp::cluster& discordBot)
 				if (error)
 				{
 					event.reply(dpp::message(std::string("Something went wrong while linking your account or you have put a invalid token")).set_flags(dpp::m_ephemeral));
-				}*/
+				}
 			}
 		}
 	);

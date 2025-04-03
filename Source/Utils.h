@@ -319,12 +319,12 @@ void ReadConfig()
 	}
 }
 
-#if 0
 void LoadDatabase()
 {
 	Log::GetLog()->warn("LoadDatabase");
 	HostDiscordBot::HostDiscordBotDB = DatabaseFactory::createConnector(HostDiscordBot::config["PluginDBSettings"]);
 
+#if 0
 	nlohmann::ordered_json tableDefinition = {};
 	if (HostDiscordBot::config["PluginDBSettings"].value("UseMySQL", true) == true)
 	{
@@ -350,8 +350,9 @@ void LoadDatabase()
 	}
 
 	HostDiscordBot::HostDiscordBotDB->createTableIfNotExist(HostDiscordBot::config["PluginDBSettings"].value("TableName", ""), tableDefinition);
+#endif
 
-
+#if 0
 	// PermissionsDB
 	if (HostDiscordBot::config["PermissionsDBSettings"].value("Enabled", true) == true)
 	{
@@ -363,6 +364,5 @@ void LoadDatabase()
 	{
 		HostDiscordBot::pointsDB = DatabaseFactory::createConnector(HostDiscordBot::config["PointsDBSettings"]);
 	}
-	
-}
 #endif
+}

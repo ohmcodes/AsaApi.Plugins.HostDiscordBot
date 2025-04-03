@@ -24,7 +24,7 @@ void OnServerReady()
 	Log::GetLog()->info("HostDiscordBot Initialized");
 
 	ReadConfig();
-	//LoadDatabase();
+	LoadDatabase();
 	//AddOrRemoveCommands();
 	AddReloadCommands();
 	//SetTimers();

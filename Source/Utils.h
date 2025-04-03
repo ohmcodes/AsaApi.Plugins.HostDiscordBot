@@ -262,7 +262,11 @@ bool DeletePlayer(FString eosID)
 
 bool CheckToken(std::string token)
 {
-	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(std::string(token));
+	Log::GetLog()->warn("raw token {}", token);
+
+	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(token);
+
+	Log::GetLog()->warn("escaped token {}", escaped_token);
 
 	std::string query = fmt::format("SELECT * FROM {} WHERE Token='{}'", "DiscordLinker", escaped_token);
 

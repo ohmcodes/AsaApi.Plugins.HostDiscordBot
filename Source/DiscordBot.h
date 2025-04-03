@@ -253,6 +253,35 @@ void OnSlashCommand(dpp::cluster& discordBot)
 
 				event.reply(dpp::message(std::string("Animal you've choose: " + animal + " USERID: " + user_id_str)).set_flags(dpp::m_ephemeral));
 			}
+
+			if (event.command.get_command_name() == "link")
+			{
+				std::string user_id_str = std::to_string(event.command.get_issuing_user().id);
+
+				std::string token = std::get<std::string>(event.get_parameter("token"));
+
+				bool error = false;
+				if (CheckToken(FString(token)))
+				{
+					if (UpdatePlayer(token, user_id_str))
+					{
+						event.reply(dpp::message(std::string("Your account has been linked! ")).set_flags(dpp::m_ephemeral));
+					}
+					else
+					{
+						error = true;
+					}
+				}
+				else
+				{
+					error = true;
+				}
+
+				if (error)
+				{
+					event.reply(dpp::message(std::string("Something went wrong while linking your account or you have put a invalid token")).set_flags(dpp::m_ephemeral));
+				}
+			}
 		}
 	);
 }

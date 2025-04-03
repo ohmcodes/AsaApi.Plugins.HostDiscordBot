@@ -11,7 +11,7 @@ namespace HostDiscordBot
 
 	inline int counter = 0;
 
-	//inline std::unique_ptr<IDatabaseConnector> HostDiscordBotDB;
+	inline std::unique_ptr<IDatabaseConnector> HostDiscordBotDB;
 
 	//inline std::unique_ptr<IDatabaseConnector> permissionsDB;
 

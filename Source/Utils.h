@@ -259,6 +259,36 @@ bool DeletePlayer(FString eosID)
 
 #endif
 
+
+bool CheckToken(FString token)
+{
+	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(token.ToString());
+
+	std::string query = fmt::format("SELECT * FROM {} WHERE EosId='{}'", "DiscordLinker", escaped_token);
+
+	std::vector<std::map<std::string, std::string>> results;
+	HostDiscordBot::HostDiscordBotDB->read(query, results);
+
+	return results.size() <= 0 ? false : true;
+}
+
+
+bool UpdatePlayer(std::string token, std::string discord_id)
+{
+	std::string escaped_token = HostDiscordBot::HostDiscordBotDB->escapeString(token);
+
+	std::string escaped_id = HostDiscordBot::HostDiscordBotDB->escapeString(discord_id);
+
+	std::vector<std::pair<std::string, std::string>> data = {
+		{"DiscordId", escaped_id}
+	};
+
+	std::string condition = fmt::format("{}='{}'", "Token", escaped_token);
+
+	return HostDiscordBot::HostDiscordBotDB->update("DiscordLinker", data, condition);
+}
+
+
 void ReadConfig()
 {
 	try
